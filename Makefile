@@ -19,7 +19,7 @@ edoc:
 	@rebar doc skip_deps=true
 
 start: compile
-	erl -pz ebin apps/*/ebin deps/*/ebin +K true
+	erl -pz ebin deps/*/ebin
 
 dialyzer-init:
 	dialyzer --build_plt --apps erts kernel stdlib -r ebin ebin deps/*/ebin
