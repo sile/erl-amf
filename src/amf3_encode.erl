@@ -1,5 +1,5 @@
 %%% @doc AMF3 encode API
-%%% @reference AMF0 specification: [http://download.macromedia.com/pub/labs/amf/amf0_spec_121207.pdf]
+%%% @reference AMF3 specification: [http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/amf/pdf/amf-file-format-spec.pdf]
 %%% @private
 %%% @end
 %%%

@@ -2,12 +2,11 @@
  [
   {description, "AMF decode/encode library"},
   {vsn, "0.1.0"},
+  {modules, [amf, amf0_decode, amf0_encode, amf3_decode, amf3_encode]},
   {registered, []},
-  {modules, [amf_app, amf, amf0_decode, amf0_encode, amf3_decode, amf3_encode]},
   {applications, [
                   kernel,
                   stdlib
                  ]},
-  {mod, { amf_app, []}},
   {env, []}
  ]}.

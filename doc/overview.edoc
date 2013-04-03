@@ -1,0 +1,8 @@
+@author Takeru Ohta <phjgt308@gmail.com>
+@copyright Takeru Ohta
+@version 0.1.0
+@title AMF Encode/Decode library
+@doc
+This library provides APIs to encode/decode AMF(Action Message Format).
+
+See README.md for more information.
