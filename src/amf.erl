@@ -3,7 +3,7 @@
 -include("../include/amf.hrl").
 -include("../include/amf_type.hrl").
 
--export([decode/2, encode/2, encode_to_iolist/2]).
+-export([decode/2, encode/2]).
 
 -export([
          object/1, object/2, typed_object/2, array/1, array/2,
@@ -55,13 +55,9 @@
 decode(amf0, Bin) -> amf0_decode:decode(Bin);
 decode(amf3, Bin) -> amf3_decode:decode(Bin).
 
--spec encode(amf_version(), amf_value()) -> binary().
+-spec encode(amf_version(), amf_value()) -> iolist().
 encode(amf0, Value) -> amf0_encode:encode(Value);
 encode(amf3, Value) -> amf3_encode:encode(Value).
-
--spec encode_to_iolist(amf_version(), amf_value()) -> iolist().
-encode_to_iolist(amf0, Value) -> amf0_encode:encode_to_iolist(Value);
-encode_to_iolist(amf3, Value) -> amf3_encode:encode_to_iolist(Value).
 
 -spec object([amf_kv_pair()]) -> amf_object().
 object(Members) ->

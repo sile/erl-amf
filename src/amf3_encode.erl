@@ -1,22 +1,67 @@
+%% Copyright (c) 2013, Takeru Ohta <phjgt308@gmail.com>
+%%
+%% The MIT License
+%%
+%% Permission is hereby granted, free of charge, to any person obtaining a copy
+%% of this software and associated documentation files (the "Software"), to deal
+%% in the Software without restriction, including without limitation the rights
+%% to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+%% copies of the Software, and to permit persons to whom the Software is
+%% furnished to do so, subject to the following conditions:
+%%
+%% The above copyright notice and this permission notice shall be included in
+%% all copies or substantial portions of the Software.
+%%
+%% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+%% IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+%% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+%% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+%% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+%% OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+%% THE SOFTWARE.
+
+%% @doc AMF3 encode API
+%% @reference AMF3 specification: [http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/amf/pdf/amf-file-format-spec.pdf]
+%% @private
 -module(amf3_encode).
 -compile(inline).
--export([encode/1, encode_to_iolist/1]).
 
+%% Encode API
+-export([encode/1, unsafe_encode/1]).
 
 -include("../include/amf.hrl").
 -include("../include/internal/amf_internal.hrl").
 
+%% Internal Types
 -type encode_fn() :: fun((amf:amf_value()) -> iolist()).
 
--spec encode(amf:amf_value()) -> binary().
-encode(Value) ->
-    iolist_to_binary(encode_to_iolist(Value)).
+%% External Functions
 
--spec encode_to_iolist(amf:amf_value()) -> iolist().
-encode_to_iolist(Value) ->
+%% @doc Encode AMF3 value.
+-spec encode(AmfValue) -> {ok, EncodedData} | {error, Reason} when
+      AmfValue    :: amf:amf_value(),
+      EncodedData :: iolist(),
+      Reason      :: amf:amf_exception().
+encode(Value) ->
+    try unsafe_encode(Value) of
+        EncodedData -> {ok, EncodedData}
+    catch
+        throw:#amf_exception{}=Ex -> {error, Ex}
+    end.
+
+%% @doc Encode AMF3 value (maybe throw exception).
+%%
+%% This function throws exception if the input value could not be encoded correctly.
+%%
+%% @throws amf:amf_exception()
+-spec unsafe_encode(AmfValue) -> EncodedData when
+      AmfValue    :: amf:amf_value(),
+      EncodedData :: iolist().
+unsafe_encode(Value) ->
     encode_impl(Value).
 
--spec encode_impl(amf:amf_value()) -> iolist().
+%% Internal Functions
+-spec encode_impl(amf:amf_value())    -> iolist().
 encode_impl(undefined)                -> encode_undefined();
 encode_impl(null)                     -> encode_null();
 encode_impl(Val) when is_boolean(Val) -> encode_boolean(Val);
@@ -32,13 +77,13 @@ encode_impl(Val=#amf_byte_array{})    -> encode_byte_array(Val);
 encode_impl(Val=#amf_date{})          -> encode_date(Val);
 encode_impl(Val=#amf_vector{})        -> encode_vector(Val);
 encode_impl(Val=#amf_dictionary{})    -> encode_dictionary(Val);
-encode_impl(Val)                      -> ?THROW_UNSUPPORTED(value, Val).
+encode_impl(Val)                      -> ?THROW_UNSUPPORTED({value, Val}).
 
 -spec encode_undefined() -> iolist().
-encode_undefined() -> [?AMF3_UNDEFINED_MARKER].
+encode_undefined()       -> [?AMF3_UNDEFINED_MARKER].
 
 -spec encode_null() -> iolist().
-encode_null() -> [?AMF3_NULL_MARKER].
+encode_null()       -> [?AMF3_NULL_MARKER].
 
 -spec encode_boolean(boolean()) -> iolist().
 encode_boolean(true)  -> [?AMF3_TRUE_MARKER];
@@ -58,10 +103,10 @@ encode_integer(Val) ->
     end.
 
 -spec encode_double(float()) -> iolist().
-encode_double(Val) -> [?AMF3_DOUBLE_MARKER, <<Val/float>>].
+encode_double(Val)           -> [?AMF3_DOUBLE_MARKER, <<Val/float>>].
 
 -spec encode_string(binary()) -> iolist().
-encode_string(Val) -> [?AMF3_STRING_MARKER, encode_utf8_vr(Val)].
+encode_string(Val)            -> [?AMF3_STRING_MARKER, encode_utf8_vr(Val)].
 
 -spec encode_strict_array([amf:amf_value()]) -> iolist().
 encode_strict_array(List) ->
@@ -165,7 +210,7 @@ encode_u29(U29) ->
             <<B1:7, B2:7, B3:7, B4:8>> = <<N:29>>,
             <<1:1, B1:7, 1:1, B2:7, 1:1, B3:7, B4:8>>;
         N ->
-            ?THROW_INVALID(u29, N)
+            ?THROW_INVALID({u29, N})
     end.
 
 -spec encode_utf8_vr(binary()) -> iolist().

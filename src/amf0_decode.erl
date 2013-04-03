@@ -22,7 +22,7 @@
 
 %% @doc AMF0 decode API
 %% @reference AMF0 specification: [http://download.macromedia.com/pub/labs/amf/amf0_spec_121207.pdf]
-%% TODO @private
+%% @private
 -module(amf0_decode).
 -compile(inline).
 
@@ -52,7 +52,7 @@
       EncodedBytes    :: binary(),
       DecodedValue    :: amf:amf_value(),
       UnconsumedBytes :: binary(),
-      Reason          :: term().   % TODO
+      Reason          :: amf:amf_exception().
 decode(<<Bin/binary>>) ->
     try unsafe_decode(Bin) of
         {Value, UnconsumedBin} -> {ok, Value, UnconsumedBin}

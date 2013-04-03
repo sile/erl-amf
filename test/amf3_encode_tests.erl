@@ -8,25 +8,26 @@
 -define(TESTDATA_DIR, filename:dirname(?SOURCE_FILE) ++ "/testdata").
 -define(TESTDATA_PATH(Name), ?TESTDATA_DIR ++ "/" ++ Name).
 
--define(showVal(Val), io:format("\n~p: ~p", [??Val, Val])).
 -define(assertEncodeBin(Expected, Input), 
         begin
-            ?showVal(Input),
-            ?showVal(Expected),
-            ?showVal(amf3_encode:encode(Input)),
-            ?assertMatch(Expected, amf3_encode:encode(Input))
+            ?assertMatch({ok, _}, amf3_encode:encode(Input)),
+            {ok, EncodedIoList} = amf3_encode:encode(Input),
+            
+            ?assertEqual(Expected, list_to_binary(EncodedIoList))
         end).
 
 -define(assertEncode(Expected, Input), 
         begin
-            ExpectedValue = amf3_decode:decode(Expected), 
-            ?assertMatch(ExpectedValue, amf3_decode:decode(amf3_encode:encode(Input)))
+            ?assertMatch({ok, _}, amf3_encode:encode(Input)),
+            {ok, EncodedIoList} = amf3_encode:encode(Input),
+            
+            ExpectedResult = amf3_decode:decode(Expected), 
+            ?assertMatch(ExpectedResult, amf3_decode:decode(list_to_binary(EncodedIoList)))
         end).
 
--define(assertEncodeException(Expected, Input),
+-define(assertEncodeError(Expected, Input),
         begin
-            ?showVal(Input),
-            ?assertException(throw, Expected, amf3_encode:encode(Input))
+            ?assertMatch({error, Expected}, amf3_encode:encode(Input))
         end).
 
 read_testdata(Name) ->
@@ -286,4 +287,4 @@ encode_empty_dictionary_test() ->
 
 encode_unknown_test() ->
     Input = {1,2,3},
-    ?assertEncodeException(#amf_exception{type=unsupported, message={value,Input}}, Input).
+    ?assertEncodeError(#amf_exception{type=unsupported, message={value,Input}}, Input).

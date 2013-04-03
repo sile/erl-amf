@@ -8,33 +8,26 @@
 -define(TESTDATA_DIR, filename:dirname(?SOURCE_FILE) ++ "/testdata").
 -define(TESTDATA_PATH(Name), ?TESTDATA_DIR ++ "/" ++ Name).
 
--define(showVal(Val), io:format("\n~p: ~p", [??Val, Val])).
 -define(assertEncodeBin(Expected, Input), 
         begin
-            ?showVal(Input),
-            ?showVal(Expected),
-            ?showVal(amf0_encode:encode(Input)),
-            ?assertMatch(Expected, amf0_encode:encode(Input))
-        end).
-
--define(assertEncodeIoList(Expected, Input), 
-        begin
-            ?showVal(Input),
-            ?showVal(Expected),
-            ?showVal(amf0_encode:encode(Input)),
-            ?assertMatch(Expected, amf0_encode:encode_to_iolist(Input))
+            ?assertMatch({ok, _}, amf0_encode:encode(Input)),
+            {ok, EncodedIoList} = amf0_encode:encode(Input),
+            
+            ?assertEqual(Expected, list_to_binary(EncodedIoList))
         end).
 
 -define(assertEncode(Expected, Input), 
         begin
-            ExpectedValue = amf0_decode:decode(Expected), 
-            ?assertMatch(ExpectedValue, amf0_decode:decode(amf0_encode:encode(Input)))
+            ?assertMatch({ok, _}, amf0_encode:encode(Input)),
+            {ok, EncodedIoList} = amf0_encode:encode(Input),
+            
+            ExpectedResult = amf0_decode:decode(Expected), 
+            ?assertMatch(ExpectedResult, amf0_decode:decode(list_to_binary(EncodedIoList)))
         end).
 
--define(assertEncodeException(Expected, Input),
+-define(assertEncodeError(Expected, Input),
         begin
-            ?showVal(Input),
-            ?assertException(throw, Expected, amf0_encode:encode(Input))
+            ?assertMatch({error, Expected}, amf0_encode:encode(Input))
         end).
 
 read_testdata(Name) ->
@@ -58,11 +51,6 @@ encode_boolean_false_test() ->
     Expected = read_testdata("amf0-boolean-false.bin"),
     Input = false,
     ?assertEncodeBin(Expected, Input).
-
-decode_boolean_true_iolist_test() ->
-    Expected = [?AMF0_BOOLEAN_MARKER, 1],
-    Input = true,
-    ?assertEncodeIoList(Expected, Input).
 
 encode_string_test() ->
     Expected = read_testdata("amf0-string.bin"),
@@ -163,7 +151,7 @@ encode_avmplus_object_test_() ->
      [
       fun () ->
               Expected = <<"dummy">>,
-              meck:expect(amf3_encode, encode_to_iolist, 1, [Expected]),
+              meck:expect(amf3_encode, unsafe_encode, 1, [Expected]),
               
               Input = amf:avmplus_object(1.0),
               ?assertEncodeBin(Expected, Input)
@@ -172,20 +160,20 @@ encode_avmplus_object_test_() ->
 
 encode_unknown_test() ->
     Input = {1, 2, 3},
-    ?assertEncodeException(#amf_exception{type=unsupported, message={value,_}}, Input).
+    ?assertEncodeError(#amf_exception{type=unsupported, message={value,_}}, Input).
 
 encode_too_large_class_name_test() ->
     Name = << <<97>> || _ <- lists:seq(0, 16#10012)>>,
     Input = amf:typed_object(Name,
                              [{<<"foo">>, <<"bar">>},
                               {<<"baz">>, null}]),
-    ?assertEncodeException(#amf_exception{type=invalid, message={class_name,_}}, Input).
+    ?assertEncodeError(#amf_exception{type=invalid, message={class_name,_,_}}, Input).
 
 encode_too_largeg_object_key_test() ->
     Key = << <<97>> || _ <- lists:seq(0, 16#10012)>>,
     Input = amf:object([{Key, <<"bar">>},
                         {<<"baz">>, null}]),
-    ?assertEncodeException(#amf_exception{type=invalid, message={key,_}}, Input).
+    ?assertEncodeError(#amf_exception{type=invalid, message={key,_,_}}, Input).
 
 -ifdef(BENCH).
 encode_speed_test() ->

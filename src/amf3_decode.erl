@@ -22,7 +22,7 @@
 
 %% @doc AMF3 decode API
 %% @reference AMF3 specification: [http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/amf/pdf/amf-file-format-spec.pdf]
-%% TODO @private
+%% @private
 -module(amf3_decode).
 -compile(inline).
 
@@ -61,7 +61,7 @@
       EncodedBytes    :: binary(),
       DecodedValue    :: amf:amf_value(),
       UnconsumedBytes :: binary(),
-      Reason          :: term().   % TODO
+      Reason          :: amf:amf_exception().
 decode(<<Bin/binary>>) ->
     try unsafe_decode(Bin) of
         {Value, UnconsumedBytes} -> {ok, Value, UnconsumedBytes}
@@ -174,7 +174,7 @@ decode_date(<<Bin/binary>>, RefMap) ->
       fun (_U28, <<MilliSecs/float, Bin1/binary>>, RefMap1) -> 
               case MilliSecs < 0 of
                   false -> {amf:msec_to_date(trunc(MilliSecs)), Bin1, RefMap1};
-                  true  -> ?THROW_INVALID(date, {MilliSecs, Bin1})
+                  true  -> ?THROW_INVALID({negative_date, MilliSecs})
               end;
           (_U28, <<DateBin:8/binary,_Bin1/binary>>, _RefMap1) -> ?THROW_INVALID({date, DateBin});
           (_U28, <<Bin1/binary>>, _RefMap1)                   -> ?THROW_PARTIAL({date, Bin1})

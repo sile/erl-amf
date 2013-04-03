@@ -293,7 +293,7 @@ decode_date_invalid_millis_test() ->
 
 decode_date_minus_millis_test() ->
     Input = read_testdata("amf3-date-minus-millis.bin"),
-    ?assertMatch({error, #amf_exception{type=invalid, message={date,_}}}, amf3_decode:decode(Input)).
+    ?assertMatch({error, #amf_exception{type=invalid, message={negative_date,_}}}, amf3_decode:decode(Input)).
 
 decode_date_partial_test() ->
     Input = read_testdata("amf3-date-partial.bin"),

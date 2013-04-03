@@ -51,6 +51,6 @@
 
 -type amf_class_name() :: undefined | amf_string(). % 'undefined' indicates an anonymous class
 
--type amf_exception_type() :: invalid | missing | partial | unsupported.
+-type amf_exception_type() :: invalid | partial | unsupported.
 
 -type amf_exception() :: #amf_exception{}.
