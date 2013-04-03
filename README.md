@@ -1,5 +1,5 @@
 # ErlAMF
-ErlAMF is a AMF(Action Message Format) encoding/deconding library written in Erlang.
+ErlAMF is an AMF(Action Message Format) encoding/deconding library written in Erlang.
 
 ## Version
 0.1.0
