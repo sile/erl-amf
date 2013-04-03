@@ -1,8 +1,12 @@
 -define(THROW(Tag, Msg), throw(#amf_exception{type=Tag, message=Msg})).
--define(THROW_INVALID(Type, Bin), ?THROW(invalid, {Type, Bin})).
+-define(THROW_INVALID(Type, Bin), ?THROW(invalid, {Type, Bin})). % TODO: delete
 -define(THROW_MISSING(Type, Bin), ?THROW(missing, {Type, Bin})).
 -define(THROW_PARTIAL(Type, Bin), ?THROW(partial, {Type, Bin})).
 -define(THROW_UNSUPPORTED(Type, Bin), ?THROW(unsupported, {Type, Bin})).
+
+-define(THROW_INVALID(Msg), ?THROW(invalid, Msg)).
+-define(THROW_PARTIAL(Msg), ?THROW(partial, Msg)).
+-define(THROW_UNSUPPORTED(Msg), ?THROW(unsupported, Msg)).
 
 -define(AMF0_NUMBER_MARKER,         16#00).
 -define(AMF0_BOOLEAN_MARKER,        16#01).
@@ -69,7 +73,7 @@
                 false -> none;
                 true ->
                     case lists:keyfind(RefIndex, 1, RefMapInternal) of
-                        false      -> undefined;
+                        false      -> uninitialized;
                         {_, Value} -> {value, Value}
                     end
             end

@@ -49,6 +49,8 @@
 
 -type amf_kv_pair() :: {Key::amf_string(), Value::amf_value()}.
 
+-type amf_class_name() :: undefined | amf_string(). % 'undefined' indicates an anonymous class
+
 -type amf_exception_type() :: invalid | missing | partial | unsupported.
 
 -type amf_exception() :: #amf_exception{}.

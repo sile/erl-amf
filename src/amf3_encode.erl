@@ -1,6 +1,7 @@
 -module(amf3_encode).
--export([encode/1, encode_to_iolist/1]).
 -compile(inline).
+-export([encode/1, encode_to_iolist/1]).
+
 
 -include("../include/amf.hrl").
 -include("../include/internal/amf_internal.hrl").

@@ -3,5 +3,6 @@
 *.dump
 /deps/
 ebin
-doc
+/doc/*
+!/doc/overview.doc
 .eunit

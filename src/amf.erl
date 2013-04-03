@@ -36,12 +36,13 @@
               amf_strict_array/0,
               amf_avmplus_object/0,
               amf_kv_pair/0,
+              amf_class_name/0,
               amf_version/0,
 
               amf_object_option/0, amf_vector_option/0, amf_dictionary_option/0
              ]).
 
--type amf_object_option() :: {class, undefined|amf_string()} |
+-type amf_object_option() :: {class, amf_class_name()} |
                              {dynamic, boolean()} |
                              {sealed_fields, [amf_string()]}.
 
