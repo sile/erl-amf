@@ -115,7 +115,7 @@ encode_string(Val)            -> [?AMF3_STRING_MARKER, encode_utf8_vr(Val)].
 encode_strict_array(List) ->
     Count = length(List),
     U29 = (Count bsl 1) + 1,
-    [?AMF3_ARRAY_MARKER, encode_u29(U29), encode_utf8_vr(<<"">>), encode_sequence(fun encode_impl/1, List, [])].
+    [?AMF3_ARRAY_MARKER, encode_u29(U29), encode_empty_str(), encode_sequence(fun encode_impl/1, List, [])].
 
 -spec encode_object(amf:amf_object()) -> iolist().
 encode_object(Obj) ->
@@ -202,7 +202,7 @@ encode_trait(Obj) ->
 encode_u29(U29) ->
     case U29 of
         N when N < 16#80 ->
-            <<0:1, N:7>>;
+            N; % optimized: This is equivalent to <<0:1, N:7>>;
         N when N < 16#4000 ->
             <<B1:7, B2:7>> = <<N:14>>,
             <<1:1, B1:7, 0:1, B2:7>>;
@@ -216,7 +216,12 @@ encode_u29(U29) ->
             ?THROW_INVALID({u29, N})
     end.
 
+-spec encode_empty_str() -> iolist().
+encode_empty_str() -> [1].
+    
 -spec encode_utf8_vr(binary()) -> iolist().
+encode_utf8_vr(<<"">>) ->
+    encode_empty_str();
 encode_utf8_vr(Val) -> 
     Size = byte_size(Val),
     U29 = (Size bsl 1) + 1,
@@ -230,7 +235,7 @@ encode_sequence(EncodeFn, [Val|List], Acc) ->
 
 -spec encode_kv_pairs([amf:amf_kv_pair()], iolist()) -> iolist().
 encode_kv_pairs([], Acc) ->
-    lists:reverse([encode_utf8_vr(<<"">>) | Acc]);
+    lists:reverse([encode_empty_str() | Acc]);
 encode_kv_pairs([{K,V}|List], Acc) ->
     encode_kv_pairs(List, [encode_impl(V), encode_utf8_vr(K) | Acc]).
 

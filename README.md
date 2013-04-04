@@ -17,7 +17,7 @@ ErlAMF is an AMF(Action Message Format) encoding/deconding library written in Er
     %%% Encode and Decode
     %% AMF3 encode
     1> {ok, IoList} = amf:encode(amf3, [1,2,3]).
-    {ok,[9,<<7>>,[<<1>>,<<>>],[[4,<<1>>],[4,<<2>>],[4,<<3>>]]]}
+    {ok,[9,7,[1],[[4,1],[4,2],[4,3]]]}
     
     %% AMF3 decode
     2> amf:decode(amf3, list_to_binary(IoList)).
