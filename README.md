@@ -19,7 +19,7 @@ $ rebar get-deps compile
 # run unit tests
 $ rebar eunit
 
-# make document
+# generate document
 $ rebar edoc
 ```
 
@@ -83,20 +83,19 @@ $ erl -pa ebin
 ```
 
 ## API
-### Decode/Encode Functions
 
-### AMF value Construct Functions
-
-### Exception (Error Reason)
+See: EDoc document
 
 ## Mapping between Erlang values and AMF values
 
+TODO
+
 ## Limitations
 ErlAMF doesn't support following features:
-* Curcular reference
-* Externalizable Class
-* Reference of encoding process
-* Special double values (eg. xxx)
+* Circular reference objects
+* flash.utils.IExternalizable interface
+* No Object/Trait/String reference is used in encoding process
+* Special double value (e.g. NaN, Infinity)
 
 ## Reference
 * [AMF0 Specification](http://download.macromedia.com/pub/labs/amf/amf0_spec_121207.pdf)
