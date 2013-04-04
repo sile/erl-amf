@@ -1,6 +1,6 @@
 -record(amf_object,
         {
-          class         = undefined :: undefined | amf:amf_string(),
+          class         = undefined :: amf:amf_class_name(),
           dynamic       = true      :: amf:amf_boolean(),
           sealed_fields = []        :: [amf:amf_string()],
           members       = []        :: [amf:amf_kv_pair()]
@@ -52,6 +52,6 @@
 
 -record(amf_exception,
         {
-          type    = invalid :: amf:amf_exception_type(),
+          type    = invalid   :: amf:amf_exception_type(),
           message = undefined :: any()
         }).

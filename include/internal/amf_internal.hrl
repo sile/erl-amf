@@ -1,9 +1,10 @@
--define(THROW(Tag, Msg), throw(#amf_exception{type=Tag, message=Msg})).
-
--define(THROW_INVALID(Msg), ?THROW(invalid, Msg)).
--define(THROW_PARTIAL(Msg), ?THROW(partial, Msg)).
+%% Throw Exception
+-define(THROW(Tag, Msg),        throw(#amf_exception{type=Tag, message=Msg})).
+-define(THROW_INVALID(Msg),     ?THROW(invalid, Msg)).
+-define(THROW_PARTIAL(Msg),     ?THROW(partial, Msg)).
 -define(THROW_UNSUPPORTED(Msg), ?THROW(unsupported, Msg)).
 
+%% AMF0 Value Marker
 -define(AMF0_NUMBER_MARKER,         16#00).
 -define(AMF0_BOOLEAN_MARKER,        16#01).
 -define(AMF0_STRING_MARKER,         16#02).
@@ -23,6 +24,7 @@
 -define(AMF0_TYPED_OBJECT_MARKER,   16#10).
 -define(AMF0_AVMPLUS_OBJECT_MARKER, 16#11).
 
+%% AMF3 Value Marker
 -define(AMF3_UNDEFINED_MARKER,     16#00).
 -define(AMF3_NULL_MARKER,          16#01).
 -define(AMF3_FALSE_MARKER,         16#02).
@@ -42,11 +44,10 @@
 -define(AMF3_VECTOR_OBJECT_MARKER, 16#10).
 -define(AMF3_DICTIONARY_MARKER,    16#11).
 
-
+%% Reference Map Template for Decoding Process
 -type decode_reference_table_index() :: non_neg_integer().
 -type decode_reference_table_entry() :: {Key::decode_reference_table_index(), Value::term()}.
--type decode_reference_table() :: {NextKey::decode_reference_table_index(), [decode_reference_table_entry()]}.
-
+-type decode_reference_table()       :: {NextKey::decode_reference_table_index(), [decode_reference_table_entry()]}.
 
 -define(DECODE_REFERENCE_TABLE_INIT(), {0, []}).
 

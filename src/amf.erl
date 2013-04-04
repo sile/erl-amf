@@ -29,7 +29,7 @@
 %%%---------------------------------------------------------------------------------------
 -module(amf).
 -include("../include/amf.hrl").
--include("../include/amf_type.hrl").
+-include("../include/internal/amf_type.hrl").
 
 %% Encode/Decode API
 -export([
@@ -172,11 +172,11 @@ datetime_to_date(DateTime) ->
         false -> msec_to_date(Secs*1000)
     end.
 
-%% @doc Make XmlDocument.
+%% @doc Make XML Document.
 -spec xml_document(Xml) -> amf_xml_document() when Xml :: amf_string().
 xml_document(Xml)       -> #amf_xml_document{data = Xml}.
 
-%% @doc Make Xml.
+%% @doc Make XML.
 -spec xml(Xml) -> amf_xml() when Xml :: amf_string().
 xml(Xml)       -> #amf_xml{data = Xml}.
 
