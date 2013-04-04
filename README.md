@@ -112,7 +112,7 @@ See: EDoc document
 <tr><td>amf:object([{&lt;&lt;"key"&gt;&gt;, &lt;&lt;"value"&gt;&gt;}])</td><td>object</td><td>object (anonymous)</td></tr>
 <tr><td>amf:typed_object(&lt;&lt;"type"&gt;&gt;, [{&lt;&lt;"key"&gt;&gt;, &lt;&lt;"value"&gt;&gt;}])</td><td>typed-object</td><td>object (typed)</td></tr>
 <tr><td>amf:dictionary([{1,2}, {true, false}])</td><td></td><td>dictionary</td></tr>
-<tr><td>amf:avmplus_object([1,2,3])</td><td>amvplus-object</td><td></td></tr>
+<tr><td>amf:avmplus_object([1,2,3])</td><td>avmplus-object</td><td></td></tr>
 </table>
 
 ## Limitations
