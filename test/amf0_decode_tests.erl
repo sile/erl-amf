@@ -1,20 +1,20 @@
 -module(amf0_decode_tests).
 
--include_lib("eunit/include/eunit.hrl").
 -include("../include/amf.hrl").
--include("../include/internal/amf_internal.hrl").
+-include_lib("eunit/include/eunit.hrl").
 
--define(SOURCE_FILE, proplists:get_value(source, ?MODULE:module_info(compile))).
--define(TESTDATA_DIR, filename:dirname(?SOURCE_FILE) ++ "/testdata").
--define(TESTDATA_PATH(Name), ?TESTDATA_DIR ++ "/" ++ Name).
-
+%% Auxiliary Function
 read_testdata(Name) ->
-    Path = ?TESTDATA_PATH(Name),
+    SourceFilePath = proplists:get_value(source, ?MODULE:module_info(compile)),
+    TestDataDir = filename:dirname(SourceFilePath) ++ "/testdata",
+    Path = TestDataDir ++ "/" ++ Name,
+
     Result = file:read_file(Path),
     ?assertMatch({Path, {ok, _}}, {Path, Result}),
     {ok, Bin} = Result,
     Bin.
 
+%% Test Functions
 decode_number_test() ->
     Input = read_testdata("amf0-number.bin"),
     Expected = 3.5,
@@ -242,6 +242,7 @@ decode_object_partial_test() ->
     Input = read_testdata("amf0-object-partial.bin"),
     ?assertMatch({error, #amf_exception{type=partial, message={kv_pairs,_}}}, amf0_decode:decode(Input)).
 
+%% Performance Test
 -ifdef(BENCH).
 decode_speed_test() ->
     case cover:is_compiled(amf0_decode) of

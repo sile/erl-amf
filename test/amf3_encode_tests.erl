@@ -1,13 +1,20 @@
 -module(amf3_encode_tests).
 
--include_lib("eunit/include/eunit.hrl").
 -include("../include/amf.hrl").
--include("../include/internal/amf_internal.hrl").
+-include_lib("eunit/include/eunit.hrl").
 
--define(SOURCE_FILE, proplists:get_value(source, ?MODULE:module_info(compile))).
--define(TESTDATA_DIR, filename:dirname(?SOURCE_FILE) ++ "/testdata").
--define(TESTDATA_PATH(Name), ?TESTDATA_DIR ++ "/" ++ Name).
+%% Auxiliary Function
+read_testdata(Name) ->
+    SourceFilePath = proplists:get_value(source, ?MODULE:module_info(compile)),
+    TestDataDir = filename:dirname(SourceFilePath) ++ "/testdata",
+    Path = TestDataDir ++ "/" ++ Name,
 
+    Result = file:read_file(Path),
+    ?assertMatch({Path, {ok, _}}, {Path, Result}),
+    {ok, Bin} = Result,
+    Bin.
+
+%% Assertion wrapper Macros
 -define(assertEncodeBin(Expected, Input), 
         begin
             ?assertMatch({ok, _}, amf3_encode:encode(Input)),
@@ -30,13 +37,7 @@
             ?assertMatch({error, Expected}, amf3_encode:encode(Input))
         end).
 
-read_testdata(Name) ->
-    Path = ?TESTDATA_PATH(Name),
-    Result = file:read_file(Path),
-    ?assertMatch({Path, {ok, _}}, {Path, Result}),
-    {ok, Bin} = Result,
-    Bin.
-
+%% Test Functions
 encode_undefined_test() ->
     Expected = read_testdata("amf3-undefined.bin"),
     Input = undefined,

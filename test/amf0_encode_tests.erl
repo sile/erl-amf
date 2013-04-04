@@ -1,13 +1,20 @@
 -module(amf0_encode_tests).
 
--include_lib("eunit/include/eunit.hrl").
 -include("../include/amf.hrl").
--include("../include/internal/amf_internal.hrl").
+-include_lib("eunit/include/eunit.hrl").
 
--define(SOURCE_FILE, proplists:get_value(source, ?MODULE:module_info(compile))).
--define(TESTDATA_DIR, filename:dirname(?SOURCE_FILE) ++ "/testdata").
--define(TESTDATA_PATH(Name), ?TESTDATA_DIR ++ "/" ++ Name).
+%% Auxiliary Function
+read_testdata(Name) ->
+    SourceFilePath = proplists:get_value(source, ?MODULE:module_info(compile)),
+    TestDataDir = filename:dirname(SourceFilePath) ++ "/testdata",
+    Path = TestDataDir ++ "/" ++ Name,
 
+    Result = file:read_file(Path),
+    ?assertMatch({Path, {ok, _}}, {Path, Result}),
+    {ok, Bin} = Result,
+    Bin.
+
+%% Assertion wrapper Macros
 -define(assertEncodeBin(Expected, Input), 
         begin
             ?assertMatch({ok, _}, amf0_encode:encode(Input)),
@@ -30,13 +37,7 @@
             ?assertMatch({error, Expected}, amf0_encode:encode(Input))
         end).
 
-read_testdata(Name) ->
-    Path = ?TESTDATA_PATH(Name),
-    Result = file:read_file(Path),
-    ?assertMatch({Path, {ok, _}}, {Path, Result}),
-    {ok, Bin} = Result,
-    Bin.
-
+%% Test Functions
 decode_number_test() ->
     Expected = read_testdata("amf0-number.bin"),
     Input = 3.5,
@@ -175,6 +176,7 @@ encode_too_largeg_object_key_test() ->
                         {<<"baz">>, null}]),
     ?assertEncodeError(#amf_exception{type=invalid, message={key,_,_}}, Input).
 
+%% Performance Test
 -ifdef(BENCH).
 encode_speed_test() ->
     case cover:is_compiled(amf0_encode) of
