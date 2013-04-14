@@ -105,14 +105,14 @@ See: EDoc document
 <tr><td>amf:vector(int, [-1,2,-3])</td><td></td><td>vector-int</td></tr>
 <tr><td>amf:vector(uint, [1,2,3])</td><td></td><td>vector-uint</td></tr>
 <tr><td>amf:vector(double, [-1.0,2.0,-3.0])</td><td></td><td>vector-double</td></tr>
-<tr><td>amf:vector(object, [1,&lt;&lt;"2"&gt;&gt;,[3]])</td><td></td><td>vector-object</td></tr>
+<tr><td>amf:vector(<<"type_name">>, [1,&lt;&lt;"2"&gt;&gt;,[3]])</td><td></td><td>vector-object</td></tr>
 <tr><td>[1,2,3]</td><td>strict-array</td><td>array (only dense element)</td></tr>
 <tr><td>amf:array([{&lt;&lt;"key"&gt;&gt;, &lt;&lt;"value"&gt;&gt;}])</td><td>ecma-array</td><td>array (only associative element)</td></tr>
 <tr><td>amf:array([1,2,3], [{&lt;&lt;"key"&gt;&gt;, &lt;&lt;"value"&gt;&gt;}])</td><td></td><td>array (mixed)</td></tr>
 <tr><td>amf:object([{&lt;&lt;"key"&gt;&gt;, &lt;&lt;"value"&gt;&gt;}])</td><td>object</td><td>object (anonymous)</td></tr>
 <tr><td>amf:typed_object(&lt;&lt;"type"&gt;&gt;, [{&lt;&lt;"key"&gt;&gt;, &lt;&lt;"value"&gt;&gt;}])</td><td>typed-object</td><td>object (typed)</td></tr>
 <tr><td>amf:dictionary([{1,2}, {true, false}])</td><td></td><td>dictionary</td></tr>
-<tr><td>amf:avmplus_object([1,2,3])</td><td>amvplus-object</td><td></td></tr>
+<tr><td>amf:avmplus_object([1,2,3])</td><td>avmplus-object</td><td></td></tr>
 </table>
 
 ## Limitations
