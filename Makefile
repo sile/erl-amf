@@ -1,28 +1,29 @@
 all: compile xref eunit                                                   
 
 init:
-	@rebar get-deps compile	
+	@./rebar get-deps compile	
 
 compile:
-	@rebar compile skip_deps=true
+	@./rebar compile skip_deps=true
 
 xref:
-	@rebar xref skip_deps=true
+	@./rebar xref skip_deps=true
 
 clean:
-	@rebar clean skip_deps=true
+	@./rebar clean skip_deps=true
 
 eunit:
-	@rebar eunit skip_deps=true
+	@./rebar eunit skip_deps=true
 
 edoc:
-	@rebar doc skip_deps=true
+	@./rebar doc skip_deps=true
 
 start: compile
 	erl -pz ebin deps/*/ebin
 
-dialyzer-init:
-	dialyzer --build_plt --apps erts kernel stdlib -r ebin ebin deps/*/ebin
+.dialyzer.plt:
+	touch .dialyzer.plt
+	dialyzer --build_plt --plt .dialyzer.plt --apps erts kernel stdlib -r ebin deps/*/ebin
 
-dialyzer:
-	dialyzer --src -r src/
+dialyze: .dialyzer.plt
+	dialyzer --plt .dialyzer.plt -r ebin
