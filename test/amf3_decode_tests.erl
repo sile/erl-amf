@@ -3,6 +3,8 @@
 -include("../include/amf.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
+-define(UTF8(S), unicode:characters_to_binary(S)).
+
 %% Auxiliary Function
 read_testdata(Name) ->
     SourceFilePath = proplists:get_value(source, ?MODULE:module_info(compile)),
@@ -38,24 +40,24 @@ decode_true_test() ->
 decode_integer_0_test() ->
     Input = read_testdata("amf3-0.bin"),
     Expected = 0,
-    ?assertEqual({ok, Expected, <<>>}, amf3_decode:decode(Input)). 
+    ?assertEqual({ok, Expected, <<>>}, amf3_decode:decode(Input)).
 
 decode_integer_min_test() ->
     Input = read_testdata("amf3-min.bin"),
-    Expected = -16#10000000, 
-    ?assertEqual({ok, Expected, <<>>}, amf3_decode:decode(Input)). 
+    Expected = -16#10000000,
+    ?assertEqual({ok, Expected, <<>>}, amf3_decode:decode(Input)).
 
 decode_integer_max_test() ->
     Input = read_testdata("amf3-max.bin"),
     Expected = 16#FFFFFFF,
-    ?assertEqual({ok, Expected, <<>>}, amf3_decode:decode(Input)). 
+    ?assertEqual({ok, Expected, <<>>}, amf3_decode:decode(Input)).
 
-decode_double_test() ->    
+decode_double_test() ->
     Input = read_testdata("amf3-float.bin"),
     Expected = 3.5,
     ?assertEqual({ok, Expected, <<>>}, amf3_decode:decode(Input)).
 
-decode_double_bignum_test() ->    
+decode_double_bignum_test() ->
     Input = read_testdata("amf3-bignum.bin"),
     Expected = math:pow(2, 1000),
     ?assertEqual({ok, Expected, <<>>}, amf3_decode:decode(Input)).
@@ -70,12 +72,12 @@ decode_double_large_max_test() ->
     Expected = 16#FFFFFFF + 1.0,
     ?assertEqual({ok, Expected, <<>>}, amf3_decode:decode(Input)).
 
-decode_string_test() ->    
+decode_string_test() ->
     Input = read_testdata("amf3-string.bin"),
     Expected = <<"String . String">>,
     ?assertEqual({ok, Expected, <<>>}, amf3_decode:decode(Input)).
 
-decode_string_ref_test() ->    
+decode_string_ref_test() ->
     Input = read_testdata("amf3-string-ref.bin"),
     Expected = [<<"foo">>,
                 <<"str">>,
@@ -85,17 +87,17 @@ decode_string_ref_test() ->
                 amf:object([{<<"str">>, <<"foo">>}])],
     ?assertEqual({ok, Expected, <<>>}, amf3_decode:decode(Input)).
 
-decode_encoded_string_ref_test() ->    
+decode_encoded_string_ref_test() ->
     Input = read_testdata("amf3-encoded-string-ref.bin"),
-    Expected = [<<"this is a テスト">>, <<"this is a テスト">>],
+    Expected = [?UTF8("this is a テスト"), ?UTF8("this is a テスト")],
     ?assertEqual({ok, Expected, <<>>}, amf3_decode:decode(Input)).
 
-decode_complex_encoded_string_array_test() ->    
+decode_complex_encoded_string_array_test() ->
     Input = read_testdata("amf3-complex-encoded-string-array.bin"),
-    Expected = [5, <<"Shift テスト">>, <<"UTF テスト">>, 5],
+    Expected = [5, ?UTF8("Shift テスト"), ?UTF8("UTF テスト"), 5],
     ?assertEqual({ok, Expected, <<>>}, amf3_decode:decode(Input)).
 
-decode_empty_string_ref_test() ->    
+decode_empty_string_ref_test() ->
     Input = read_testdata("amf3-empty-string-ref.bin"),
     Expected = [<<"">>, <<"">>],
     ?assertEqual({ok, Expected, <<>>}, amf3_decode:decode(Input)).
@@ -133,7 +135,7 @@ decode_associative_array_test() ->
 
 decode_mixed_array_test() ->
     Input = read_testdata("amf3-mixed-array.bin"),
-    
+
     H1 = amf:object([{<<"foo_one">>,<<"bar_one">>}]),
     H2 = amf:object([{<<"foo_two">>,<<>>}]),
     SO1= amf:object([{<<"foo_three">>,42}]),
@@ -207,23 +209,23 @@ decode_xml_ref_test() ->
                 amf:xml(<<"<parent><child prop=\"test\"/></parent>">>)],
     ?assertEqual({ok, Expected, <<>>}, amf3_decode:decode(Input)).
 
-decode_byte_array_test() ->    
+decode_byte_array_test() ->
     Input = read_testdata("amf3-byte-array.bin"),
-    Expected = amf:byte_array(<<0,3,"これtest",64>>),
+    Expected = amf:byte_array(<<0,3,(?UTF8("これtest"))/binary,64>>),
     ?assertEqual({ok, Expected, <<>>}, amf3_decode:decode(Input)).
 
-decode_byte_array_ref_test() ->    
+decode_byte_array_ref_test() ->
     Input = read_testdata("amf3-byte-array-ref.bin"),
     Expected = [amf:byte_array(<<"ASDF">>),
                 amf:byte_array(<<"ASDF">>)],
     ?assertEqual({ok, Expected, <<>>}, amf3_decode:decode(Input)).
 
-decode_vector_int_test() ->    
+decode_vector_int_test() ->
     Input = read_testdata("amf3-vector-int.bin"),
     Expected = amf:vector(int, [4,-20,12]),
     ?assertEqual({ok, Expected, <<>>}, amf3_decode:decode(Input)).
 
-decode_vector_uint_test() ->    
+decode_vector_uint_test() ->
     Input = read_testdata("amf3-vector-uint.bin"),
     Expected = amf:vector(uint, [4,20,12]),
     ?assertEqual({ok, Expected, <<>>}, amf3_decode:decode(Input)).
@@ -259,7 +261,7 @@ decode_empty_dictionary_test() ->
     Expected = amf:dictionary([]),
     ?assertEqual({ok, Expected, <<>>}, amf3_decode:decode(Input)).
 
-decode_graph_member_test() ->    
+decode_graph_member_test() ->
     Input = read_testdata("amf3-graph-member.bin"),
     ?assertMatch({error, #amf_exception{type=unsupported, message={circular_reference,_}}}, amf3_decode:decode(Input)).
 
@@ -331,12 +333,12 @@ decode_u29_partial_test() ->
     Input = read_testdata("amf3-u29-partial.bin"),
     ?assertMatch({error, #amf_exception{type=partial, message={u29,_}}}, amf3_decode:decode(Input)).
 
-decode_integer_2byte_test() ->    
+decode_integer_2byte_test() ->
     Input = read_testdata("amf3-integer-2byte.bin"),
     Expected = 2#10000000,
     ?assertEqual({ok, Expected, <<>>}, amf3_decode:decode(Input)).
 
-decode_integer_3byte_test() ->    
+decode_integer_3byte_test() ->
     Input = read_testdata("amf3-integer-3byte.bin"),
     Expected = 2#100000000000000,
     ?assertEqual({ok, Expected, <<>>}, amf3_decode:decode(Input)).
@@ -353,7 +355,7 @@ decode_speed_test() ->
             Bins = [read_testdata(File) || File <- Files],
             N = lists:seq(1, 5000),
             ?debugTime("amf3_decode",
-                       lists:foreach(fun(_) -> 
+                       lists:foreach(fun(_) ->
                                              lists:foreach(fun amf3_decode:decode/1, Bins)
                                      end, N));
         _ ->

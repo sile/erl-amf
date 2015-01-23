@@ -3,6 +3,8 @@
 -include("../include/amf.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
+-define(UTF8(S), unicode:characters_to_binary(S)).
+
 %% Auxiliary Function
 read_testdata(Name) ->
     SourceFilePath = proplists:get_value(source, ?MODULE:module_info(compile)),
@@ -15,20 +17,20 @@ read_testdata(Name) ->
     Bin.
 
 %% Assertion wrapper Macros
--define(assertEncodeBin(Expected, Input), 
+-define(assertEncodeBin(Expected, Input),
         begin
             ?assertMatch({ok, _}, amf0_encode:encode(Input)),
             {ok, EncodedIoList} = amf0_encode:encode(Input),
-            
+
             ?assertEqual(Expected, list_to_binary(EncodedIoList))
         end).
 
--define(assertEncode(Expected, Input), 
+-define(assertEncode(Expected, Input),
         begin
             ?assertMatch({ok, _}, amf0_encode:encode(Input)),
             {ok, EncodedIoList} = amf0_encode:encode(Input),
-            
-            ExpectedResult = amf0_decode:decode(Expected), 
+
+            ExpectedResult = amf0_decode:decode(Expected),
             ?assertMatch(ExpectedResult, amf0_decode:decode(list_to_binary(EncodedIoList)))
         end).
 
@@ -55,7 +57,7 @@ encode_boolean_false_test() ->
 
 encode_string_test() ->
     Expected = read_testdata("amf0-string.bin"),
-    Input = <<"this is a テスト">>,
+    Input = ?UTF8("this is a テスト"),
     ?assertEncodeBin(Expected, Input).
 
 encode_long_string_test() ->
@@ -65,14 +67,15 @@ encode_long_string_test() ->
 
 encode_complex_encoded_string_test() ->
     Expected = read_testdata("amf0-complex-encoded-string.bin"),
-    Input = amf:object([{<<"utf">>, <<"UTF テスト">>},
+    Input = amf:object([{<<"utf">>, ?UTF8("UTF テスト")},
                         {<<"zed">>, 5.0},
-                        {<<"shift">>, <<"Shift テスト">>}]),
+                        {<<"shift">>, ?UTF8("Shift テスト")}]),
     ?assertEncodeBin(Expected, Input).
 
 encode_object_test() ->
     Expected = read_testdata("amf0-object.bin"),
-    Input = amf:object([{<<"foo">>, <<"baz">>},
+    Input = amf:object([{<<"">>, <<"">>},
+                        {<<"foo">>, <<"baz">>},
                         {<<"bar">>, 3.14}]),
     ?assertEncodeBin(Expected, Input).
 
@@ -126,18 +129,18 @@ encode_strict_array_test() ->
 encode_date_test() ->
     Expected = read_testdata("amf0-date.bin"),
     Input = amf:datetime_to_date({{2020,5,30}, {0,0,0}}),
-    ?assertEncodeBin(Expected, Input).    
+    ?assertEncodeBin(Expected, Input).
 
 encode_time_test() ->
     Expected = read_testdata("amf0-time.bin"),
     Input = amf:datetime_to_date({{2003,2,13}, {5,0,0}}),
-    ?assertEncodeBin(Expected, Input).    
+    ?assertEncodeBin(Expected, Input).
 
 encode_xml_document_test() ->
     Expected = read_testdata("amf0-xml-doc.bin"),
     Input = amf:xml_document(<<"<parent><child prop=\"test\" /></parent>">>),
-    ?assertEncodeBin(Expected, Input).    
-    
+    ?assertEncodeBin(Expected, Input).
+
 encode_typed_object_test() ->
     Expected = read_testdata("amf0-typed-object.bin"),
     Input = amf:typed_object(<<"org.amf.ASClass">>,
@@ -153,7 +156,7 @@ encode_avmplus_object_test_() ->
       fun () ->
               Expected = <<"dummy">>,
               meck:expect(amf3_encode, unsafe_encode, 1, [Expected]),
-              
+
               Input = amf:avmplus_object(1.0),
               ?assertEncodeBin(Expected, Input)
       end
@@ -189,7 +192,7 @@ encode_speed_test() ->
             Values = [element(1,amf0_decode:decode(read_testdata(File))) || File <- Files],
             N = lists:seq(1, 50000),
             ?debugTime("amf0_encode",
-                       lists:foreach(fun(_) -> 
+                       lists:foreach(fun(_) ->
                                              lists:foreach(fun amf0_encode:encode_to_iolist/1, Values)
                                      end, N));
         _ ->

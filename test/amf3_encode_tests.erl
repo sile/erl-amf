@@ -3,6 +3,8 @@
 -include("../include/amf.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
+-define(UTF8(S), unicode:characters_to_binary(S)).
+
 %% Auxiliary Function
 read_testdata(Name) ->
     SourceFilePath = proplists:get_value(source, ?MODULE:module_info(compile)),
@@ -15,20 +17,20 @@ read_testdata(Name) ->
     Bin.
 
 %% Assertion wrapper Macros
--define(assertEncodeBin(Expected, Input), 
+-define(assertEncodeBin(Expected, Input),
         begin
             ?assertMatch({ok, _}, amf3_encode:encode(Input)),
             {ok, EncodedIoList} = amf3_encode:encode(Input),
-            
+
             ?assertEqual(Expected, list_to_binary(EncodedIoList))
         end).
 
--define(assertEncode(Expected, Input), 
+-define(assertEncode(Expected, Input),
         begin
             ?assertMatch({ok, _}, amf3_encode:encode(Input)),
             {ok, EncodedIoList} = amf3_encode:encode(Input),
-            
-            ExpectedResult = amf3_decode:decode(Expected), 
+
+            ExpectedResult = amf3_decode:decode(Expected),
             ?assertMatch(ExpectedResult, amf3_decode:decode(list_to_binary(EncodedIoList)))
         end).
 
@@ -75,7 +77,7 @@ encode_integer_3byte_test() ->
 
 encode_integer_min_test() ->
     Expected = read_testdata("amf3-min.bin"),
-    Input = -16#10000000, 
+    Input = -16#10000000,
     ?assertEncodeBin(Expected, Input).
 
 encode_integer_max_test() ->
@@ -83,12 +85,12 @@ encode_integer_max_test() ->
     Input = 16#FFFFFFF,
     ?assertEncodeBin(Expected, Input).
 
-encode_double_test() ->    
+encode_double_test() ->
     Expected = read_testdata("amf3-float.bin"),
     Input = 3.5,
     ?assertEncodeBin(Expected, Input).
 
-encode_double_bignum_test() ->    
+encode_double_bignum_test() ->
     Expected = read_testdata("amf3-bignum.bin"),
     Input = math:pow(2, 1000),
     ?assertEncodeBin(Expected, Input).
@@ -103,7 +105,7 @@ encode_double_large_max_test() ->
     Input = 16#FFFFFFF+1,
     ?assertEncodeBin(Expected, Input).
 
-encode_string_test() ->    
+encode_string_test() ->
     Expected = read_testdata("amf3-string.bin"),
     Input = <<"String . String">>,
     ?assertEncodeBin(Expected, Input).
@@ -120,17 +122,17 @@ encode_string_ref_test() ->
              amf:object([{<<"str">>, <<"foo">>}])],
     ?assertEncode(Expected, Input).
 
-encode_encoded_string_ref_test() ->    
+encode_encoded_string_ref_test() ->
     Expected = read_testdata("amf3-encoded-string-ref.bin"),
-    Input = [<<"this is a テスト">>, <<"this is a テスト">>],
+    Input = [?UTF8("this is a テスト"), ?UTF8("this is a テスト")],
     ?assertEncode(Expected, Input).
 
-encode_complex_encoded_string_array_test() ->    
+encode_complex_encoded_string_array_test() ->
     Expected = read_testdata("amf3-complex-encoded-string-array.bin"),
-    Input = [5, <<"Shift テスト">>, <<"UTF テスト">>, 5],
+    Input = [5, ?UTF8("Shift テスト"), ?UTF8("UTF テスト"), 5],
     ?assertEncodeBin(Expected, Input).
 
-encode_empty_string_ref_test() ->    
+encode_empty_string_ref_test() ->
     Expected = read_testdata("amf3-empty-string-ref.bin"),
     Input = [<<"">>, <<"">>],
     ?assertEncodeBin(Expected, Input).
@@ -174,7 +176,7 @@ encode_mixed_array_test() ->
     SO1= amf:object([{<<"foo_three">>,42}]),
     Empty = amf:object([]),
     Input = [H1, H2, SO1, Empty, [H1, H2, SO1], [], 42, <<"">>, [], <<"">>, Empty, <<"bar_one">>, SO1],
-    
+
     ?assertEncode(Expected, Input).
 
 encode_object_ref_test() ->
@@ -229,12 +231,12 @@ encode_xml_ref_test() ->
              amf:xml(<<"<parent><child prop=\"test\"/></parent>">>)],
     ?assertEncode(Expected, Input).
 
-encode_byte_array_test() ->    
+encode_byte_array_test() ->
     Expected = read_testdata("amf3-byte-array.bin"),
-    Input = amf:byte_array(<<0,3,"これtest",64>>),
+    Input = amf:byte_array(<<0,3,(?UTF8("これtest"))/binary,64>>),
     ?assertEncodeBin(Expected, Input).
 
-encode_byte_array_ref_test() ->    
+encode_byte_array_ref_test() ->
     Expected = read_testdata("amf3-byte-array-ref.bin"),
     Input = [amf:byte_array(<<"ASDF">>),
              amf:byte_array(<<"ASDF">>)],
@@ -250,12 +252,12 @@ encode_date_ref_test() ->
     Input = [amf:date({0,0,0}), amf:date({0,0,0})],
     ?assertEncode(Expected, Input).
 
-encode_vector_int_test() ->    
+encode_vector_int_test() ->
     Expected = read_testdata("amf3-vector-int.bin"),
     Input = amf:vector(int, [4,-20,12]),
     ?assertEncodeBin(Expected, Input).
 
-encode_vector_uint_test() ->    
+encode_vector_uint_test() ->
     Expected = read_testdata("amf3-vector-uint.bin"),
     Input = amf:vector(uint, [4,20,12]),
     ?assertEncodeBin(Expected, Input).

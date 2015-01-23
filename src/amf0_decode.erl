@@ -51,7 +51,7 @@
 %% External Functions
 
 %% @doc Decode AMF0 binary data.
--spec decode(EncodedBytes) -> {ok, DecodedValue, UnconsumedBytes} | {error, Reason} when 
+-spec decode(EncodedBytes) -> {ok, DecodedValue, UnconsumedBytes} | {error, Reason} when
       EncodedBytes    :: binary(),
       DecodedValue    :: amf:amf_value(),
       UnconsumedBytes :: binary(),
@@ -122,7 +122,7 @@ decode_null(<<Bin/binary>>, RefMap)   -> {null, Bin, RefMap}.
 
 -spec decode_undefined(binary(), refmap()) -> internal_result(amf:amf_undefined()).
 decode_undefined(<<Bin/binary>>, RefMap)   -> {undefined, Bin, RefMap}.
-    
+
 -spec decode_number(binary(), refmap()) -> internal_result(amf:amf_number()).
 decode_number(<<Num/float,    Bin/binary>>, RefMap) -> {Num, Bin, RefMap};
 decode_number(<<Num:8/binary,_Bin/binary>>,_RefMap) -> ?THROW_UNSUPPORTED({number, Num});
@@ -154,7 +154,7 @@ decode_date(<<DateMillis/float, _TimeZone:16/signed, Bin/binary>>, RefMap) ->
     end;
 decode_date(<<DateBin:10/binary, _Bin/binary>>, _RefMap) ->
     ?THROW_INVALID({date, DateBin});
-decode_date(<<Bin/binary>>, _RefMap) -> 
+decode_date(<<Bin/binary>>, _RefMap) ->
     ?THROW_PARTIAL({date, Bin}).
 
 -spec decode_avmplus_object(binary(), refmap()) -> internal_result(amf:amf_value()).
@@ -197,14 +197,12 @@ decode_ecma_array(<<Bin/binary>>, _RefMap) -> ?THROW_PARTIAL({ecma_array, Bin}).
 -spec decode_strict_array(binary(), refmap()) -> internal_result(amf:amf_strict_array()).
 decode_strict_array(<<Count:32, ValuesBin/binary>>, RefMap) ->
     ?WITH_REFERENCE(RefMap, RefMap1, decode_values(ValuesBin, RefMap1, Count, []));
-decode_strict_array(<<Bin/binary>>, _RefMap) -> 
+decode_strict_array(<<Bin/binary>>, _RefMap) ->
     ?THROW_PARTIAL({strict_array, Bin}).
 
 -spec decode_kv_pairs(binary(), refmap(), [amf:amf_kv_pair()]) -> internal_result([amf:amf_kv_pair()]).
-decode_kv_pairs(<<0:16, ?AMF0_OBJECT_END_MARKER, Bin/binary>>, RefMap, Acc) -> 
+decode_kv_pairs(<<0:16, ?AMF0_OBJECT_END_MARKER, Bin/binary>>, RefMap, Acc) ->
     {lists:reverse(Acc), Bin, RefMap};
-decode_kv_pairs(<<0:16, Bin/binary>>, _RefMap, _Acc) ->
-    ?THROW_INVALID({missing_object_end, Bin});
 decode_kv_pairs(<<Len:16, Key:Len/binary, ValueBin/binary>>, RefMap, Acc) ->
     {Value, Bin1, RefMap2} = decode_impl(ValueBin, RefMap),
     decode_kv_pairs(Bin1, RefMap2, [{Key,Value}|Acc]);

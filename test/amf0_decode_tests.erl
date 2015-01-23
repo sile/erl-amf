@@ -3,6 +3,8 @@
 -include("../include/amf.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
+-define(UTF8(S), unicode:characters_to_binary(S)).
+
 %% Auxiliary Function
 read_testdata(Name) ->
     SourceFilePath = proplists:get_value(source, ?MODULE:module_info(compile)),
@@ -57,17 +59,17 @@ decode_boolean_invalid_test() ->
 decode_boolean_partial_test() ->
     Input = read_testdata("amf0-boolean-partial.bin"),
     ?assertMatch({error, #amf_exception{type=partial, message={boolean,_}}}, amf0_decode:decode(Input)).
-    
+
 decode_string_test() ->
     Input = read_testdata("amf0-string.bin"),
-    Expected = <<"this is a テスト">>,
+    Expected = ?UTF8("this is a テスト"),
     ?assertEqual({ok, Expected, <<>>}, amf0_decode:decode(Input)).
 
 decode_complex_encoded_string_test() ->
-    Input = read_testdata("amf0-complex-encoded-string.bin"),	
-    Expected = amf:object([{<<"utf">>, <<"UTF テスト">>},
+    Input = read_testdata("amf0-complex-encoded-string.bin"),
+    Expected = amf:object([{<<"utf">>, ?UTF8("UTF テスト")},
                            {<<"zed">>, 5.0},
-                           {<<"shift">>, <<"Shift テスト">>}]),
+                           {<<"shift">>, ?UTF8("Shift テスト")}]),
     ?assertEqual({ok, Expected, <<>>}, amf0_decode:decode(Input)).
 
 decode_string_partial_test() ->
@@ -76,7 +78,8 @@ decode_string_partial_test() ->
 
 decode_object_test() ->
     Input = read_testdata("amf0-object.bin"),
-    Expected = amf:object([{<<"foo">>, <<"baz">>},
+    Expected = amf:object([{<<"">>, <<"">>},
+                           {<<"foo">>, <<"baz">>},
                            {<<"bar">>, 3.14}]),
     ?assertEqual({ok, Expected, <<>>}, amf0_decode:decode(Input)).
 
@@ -89,7 +92,7 @@ decode_untyped_object_test() ->
 decode_movieclip_test() ->
     Input = read_testdata("amf0-movieclip.bin"),
     ?assertMatch({error, #amf_exception{type=unsupported, message=movieclip}}, amf0_decode:decode(Input)).
-    
+
 decode_null_test() ->
     Input = read_testdata("amf0-null.bin"),
     Expected = null,
@@ -200,7 +203,7 @@ decode_xml_document_test() ->
 decode_xml_document_partial_test() ->
     Input = read_testdata("amf0-xml-document-partial.bin"),
     ?assertMatch({error, #amf_exception{type=partial, message={xml_document,_}}}, amf0_decode:decode(Input)).
-    
+
 decode_typed_object_test() ->
     Input = read_testdata("amf0-typed-object.bin"),
     Expected = amf:typed_object(<<"org.amf.ASClass">>,
@@ -219,7 +222,7 @@ decode_avmplus_object_test_() ->
      [
       fun () ->
               meck:expect(amf3_decode, unsafe_decode, 1, {dummy_value, <<"">>}),
-              
+
               Input = read_testdata("amf0-avmplus-object.bin"),
               Expected = dummy_value,
               ?assertEqual({ok, Expected, <<>>}, amf0_decode:decode(Input))
@@ -233,10 +236,6 @@ decode_empty_binary_test() ->
 decode_unknown_marker_test() ->
     Input = read_testdata("amf0-unknown-marker.bin"),
     ?assertMatch({error, #amf_exception{type=invalid, message={unknown_marker,_}}}, amf0_decode:decode(Input)).
-
-decode_missing_object_end_test() ->
-    Input = read_testdata("amf0-missing-object-end.bin"),
-    ?assertMatch({error, #amf_exception{type=invalid, message={missing_object_end,_}}}, amf0_decode:decode(Input)).
 
 decode_object_partial_test() ->
     Input = read_testdata("amf0-object-partial.bin"),
@@ -255,7 +254,7 @@ decode_speed_test() ->
             Bins = [read_testdata(File) || File <- Files],
             N = lists:seq(1, 50000),
             ?debugTime("amf0_decode",
-                       lists:foreach(fun(_) -> 
+                       lists:foreach(fun(_) ->
                                              lists:foreach(fun amf0_decode:decode/1, Bins)
                                      end, N));
         _ ->
