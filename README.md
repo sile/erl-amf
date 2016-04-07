@@ -79,7 +79,7 @@ $ erl -pa ebin
 
 ## API
 
-See: EDoc document
+See: [EDoc document](doc/amf.md)
 
 ## Mapping between Erlang Values and AMF types(markers)
 
