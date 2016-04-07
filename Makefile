@@ -1,31 +1,26 @@
-ERLC_OPTS="[warnings_as_errors, warn_export_all, warn_untyped_record]"
+.PHONY: test
 
-all: compile xref eunit                                                   
-
-init:
-	@ERL_COMPILER_OPTIONS=$(ERLC_OPTS) ./rebar get-deps compile	
+all: compile xref test dialyze edoc
 
 compile:
-	@ERL_COMPILER_OPTIONS=$(ERLC_OPTS) ./rebar compile skip_deps=true
+	@./rebar3 compile
 
 xref:
-	@./rebar xref skip_deps=true
+	@./rebar3 xref
 
 clean:
-	@./rebar clean skip_deps=true
+	@./rebar3 clean
 
-eunit:
-	@./rebar eunit skip_deps=true
+test:
+	@./rebar3 eunit
+	@./rebar3 ct
+	@./rebar3 cover
 
 edoc:
-	@./rebar doc skip_deps=true
+	@./rebar3 as edown edoc
 
 start: compile
-	erl -pz ebin deps/*/ebin
+	@./rebar3 shell
 
-.dialyzer.plt:
-	touch .dialyzer.plt
-	dialyzer --build_plt --plt .dialyzer.plt --apps erts kernel stdlib -r ebin deps/*/ebin
-
-dialyze: .dialyzer.plt
-	dialyzer --plt .dialyzer.plt -r ebin
+dialyze: compile
+	@./rebar3 dialyzer

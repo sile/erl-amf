@@ -3,24 +3,21 @@
 ErlAMF is an AMF(Action Message Format) encoding/deconding library written in Erlang.
 
 ## Version
-0.1.2
+0.1.4
 
 ## Usage
 ### Build
 
-ErlAMF uses [Rebar](https://github.com/basho/rebar/) as build tool.
+ErlAMF uses [rebar3](https://github.com/erlang/rebar3) as build tool.
 
 ```sh
 # build
 $ git clone git://github.com/sile/erl-amf.git
 $ cd erl-amf
-$ rebar get-deps compile
+$ rebar3 compile
 
 # run unit tests
-$ rebar eunit
-
-# generate document
-$ rebar edoc
+$ rebar3 eunit
 ```
 
 ### Examples
@@ -34,11 +31,11 @@ $ erl -pa ebin
 %%% AMF3 encode
 1> {ok, IoList} = amf:encode(amf3, [1,2,3]).
 {ok,[9,7,[1],[[4,1],[4,2],[4,3]]]}
-    
+
 %% AMF3 decode
 2> amf:decode(amf3, list_to_binary(IoList)).
 {ok,[1,2,3],<<>>}
-    
+
 %%%
 %%% AMF values
 %%%
@@ -48,7 +45,7 @@ $ erl -pa ebin
 [amf_array,amf_avmplus_object,amf_byte_array,amf_date,
  amf_dictionary,amf_exception,amf_object,amf_vector,amf_xml,
  amf_xml_document]
-    
+
 %% Anonymous object
 4> amf:object([{<<"one">>, 1}, {<<"two">>, 2}]).
 #amf_object{class = undefined,dynamic = true,
@@ -74,7 +71,7 @@ $ erl -pa ebin
 7> amf:encode(amf0, can_not_encode).
 {error,#amf_exception{type = unsupported,
                       message = {value,can_not_encode}}}
-    
+
 8> amf:decode(amf0, <<>>).
 {error,#amf_exception{type = partial,
                       message = {marker,<<>>}}}
