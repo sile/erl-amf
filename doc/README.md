@@ -4,7 +4,7 @@
 
 Copyright (c) Takeru Ohta
 
-__Version:__ 0.1.0
+__Version:__ 0.1.4
 
 __Authors:__ Takeru Ohta ([`phjgt308@gmail.com`](mailto:phjgt308@gmail.com)).
 
