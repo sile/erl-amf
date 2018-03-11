@@ -8,5 +8,8 @@
                   kernel,
                   stdlib
                  ]},
-  {env, []}
+  {env, []},
+  {maintainers,["Takeru Ohta"]},
+  {licenses,["MIT"]},
+  {links,[{"GitHub","https://github.com/sile/erl-amf"}]}
  ]}.
