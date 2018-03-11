@@ -1,9 +1,13 @@
 # ErlAMF
 
+[![hex.pm version](https://img.shields.io/hexpm/v/amf.svg)](https://hex.pm/packages/amf)
+[![Build Status](https://travis-ci.org/sile/amf.svg?branch=master)](https://travis-ci.org/sile/erl-amf)
+[![Code Coverage](https://codecov.io/gh/sile/amf/branch/master/graph/badge.svg)](https://codecov.io/gh/sile/erl-amf/branch/master)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 ErlAMF is an AMF(Action Message Format) encoding/deconding library written in Erlang.
 
-## Version
-0.1.4
+[EDoc Documentation](https://hexdocs.pm/amf/)
 
 ## Usage
 ### Build
@@ -76,10 +80,6 @@ $ erl -pa ebin
 {error,#amf_exception{type = partial,
                       message = {marker,<<>>}}}
 ```
-
-## API
-
-See: [EDoc document](doc/amf.md)
 
 ## Mapping between Erlang Values and AMF types(markers)
 
